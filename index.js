@@ -63,6 +63,8 @@ function init() {
 
 function shouldLock(config, prLabels) {
     return config.labels.some((l) => {
+        core.info("core: Checking", prLabels, "for", l)
+        console.log("console: Checking", prLabels, "for", l)
         if (prLabels.includes(l)) {
             core.info(`Found marker label "${l}"`);
             return true;
