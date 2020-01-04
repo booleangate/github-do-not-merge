@@ -24,26 +24,22 @@ async function main() {
         return;
     }
 
-    core.info(`Looking for label "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
+    core.info(`Looking for label(s) "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
 
     const prLabels = await pr.getLabels();
-    const isLocked = await pr.isLocked();
-    let willLock = false;
-
     if (!prLabels) {
-        core.setFailed('Could not get labels, removing lock.');
-    } else {
-        willLock = shouldLock(config, prLabels);
+        core.setFailed('Could not get PR labels, doing nothing.');
+        return
     }
 
-    console.log("labels!");
-    console.info(prLabels);
+    if (shouldLock(config, prLabels)) {
+        core.info('Locking PR.');
 
-    if (isLocked === willLock) {
-        core.info(`PR is already ${isLocked ? "locked" : "unlocked"}, doing nothing.`);
-    } else {
-        core.info(`${willLock ? "Locking" : "Unlocking"} PR.`);
-        await pr.setLock(willLock)
+        if (await pr.lock()) {
+            core.info('PR locked.');
+        } else {
+            core.setFailed('Failed to lock PR.');
+        }
     }
 }
 
@@ -56,7 +52,7 @@ function init() {
     }
 
     if (github.context.payload.pull_request && github.context.payload.pull_request.number) {
-        values.pr = new PrClient(github.context.payload.pull_request && github.context.payload.pull_request.number);
+        values.pr = new PrClient(github.context.payload.pull_request);
     } else {
         core.error("Pull request not found in `github.context.payload`")
         console.error(github.context.payload);
@@ -66,7 +62,14 @@ function init() {
 }
 
 function shouldLock(config, prLabels) {
-    return config.labels.some((l) => prLabels.includes(l));
+    return config.labels.some((l) => {
+        if (prLabels.includes(l)) {
+            core.info(`Found marker label "${l}"`);
+            return true;
+        }
+
+        return false;
+    });
 }
 
 (async () => {
