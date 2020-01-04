@@ -499,6 +499,7 @@ module.exports = require("os");
 // - https://github.com/actions/toolkit/tree/master/packages/core
 // - https://github.com/actions/toolkit/tree/master/packages/github
 // - https://github.com/wip/app/
+// - https://github.com/actions/labeler/blob/master/src/main.ts
 
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);

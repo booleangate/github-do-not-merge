@@ -3,6 +3,7 @@
 // - https://github.com/actions/toolkit/tree/master/packages/core
 // - https://github.com/actions/toolkit/tree/master/packages/github
 // - https://github.com/wip/app/
+// - https://github.com/actions/labeler/blob/master/src/main.ts
 
 const core = require('@actions/core');
 const github = require('@actions/github');
