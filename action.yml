@@ -1,11 +1,12 @@
 name: 'DO NOT MERGE'
 description: 'Make PRs with "do not merge" labels or tags unmergable.'
 inputs:
-  labels:
-    - type: 'label'
-      description: 'Who to greet'
-      required: true
-      default: 'World'
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
+  label:
+    description: 'Label value'
+    default: 'DO NOT MERGE'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

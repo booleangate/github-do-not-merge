@@ -1,12 +1,17 @@
-on: [push]
+on:
+  pull_request:
+    types: [edited, labeled, unlabeled]
+    # include 'synchronize' for running on push.  Full list available here
+    # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#pull-request-event-pull_request
 
 jobs:
   dnm:
     runs-on: ubuntu-latest
-    name: DNM
+    name: Do Not Merge check
     steps:
-      - name: Checking for DNM flags
+      - name: Checking for DNM markers
         id: dnm
-        uses: booleangate/github-do-not-merge@v1
+        uses: booleangate/github-do-not-merge@test
         with:
-          labels: ['DO NOT MERGE']
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          label: 'DO NOT MERGE'
