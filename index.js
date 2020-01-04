@@ -38,6 +38,8 @@ async function main() {
     const previousLock = await pr.getLock();
     const isLocked = !!previousLock;
 
+    core.info('previous lock', previousLock)
+
     // if (isLocked === lock) {
     //     core.info(`Markers haven't changed. Nothing to do.`);
     //     return;

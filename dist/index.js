@@ -534,6 +534,8 @@ async function main() {
     const previousLock = await pr.getLock();
     const isLocked = !!previousLock;
 
+    core.info('previous lock', previousLock)
+
     // if (isLocked === lock) {
     //     core.info(`Markers haven't changed. Nothing to do.`);
     //     return;
@@ -10467,6 +10469,7 @@ class PrClient {
         }));
 
         if (!res || !res.data) {
+            core.error('listLabelsOnIssue response', res);
             return void 0;
         }
 
@@ -10479,10 +10482,9 @@ class PrClient {
         }));
 
         if (!res || !res.data) {
+            core.error('listForRef response', res);
             return void 0;
         }
-
-        console.log(res.data.check_runs);
 
         return res.data.check_runs.find(
             (check) => check.name = checkName
@@ -10522,6 +10524,11 @@ class PrClient {
             check.output.summary = '*Do Not Merge* markers removed.';
 
             res = await this._gh.checks.update(this._context(check));
+        }
+
+        if (!res || !res.data) {
+            core.error(`checks.${lock ? 'create' : 'update'} response`, res);
+            return void 0;
         }
 
         return res && (res.status / 100) >>> 0 === 2;
