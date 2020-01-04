@@ -9,4 +9,4 @@ jobs:
         id: dnm
         uses: booleangate/github-do-not-merge@v1
         with:
-          labels: ['DO NOT MERGE']
+          label: 'DO NOT MERGE'
