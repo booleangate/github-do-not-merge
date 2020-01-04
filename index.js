@@ -3,8 +3,9 @@ const github = require('@actions/github');
 
 try {
     const label = core.getInput('label')
+
     console.log(label);
-    core.log(label);
+    core.info(label);
 } catch(e) {
     console.error(e);
     core.error(e);
