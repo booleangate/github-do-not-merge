@@ -7,6 +7,6 @@ jobs:
     steps:
       - name: Checking for DNM flags
         id: dnm
-        uses: booleangate/github-do-not-merge@v1
+        uses: booleangate/github-do-not-merge@test
         with:
           label: 'DO NOT MERGE'
