@@ -10487,9 +10487,15 @@ class PrClient {
         }
 
         return res.data.check_runs.find(
-            (check) => check.name = checkName
-                && check.output.title === checkTitle
-                && check.output.title === checkSummary
+            (check) => {
+                console.log(
+                    `Checking '${check.name}' === '${checkName}' && '${check.output.title}' === '${checkTitle}' && '${check.output.title}' === '${checkSummary}'`,
+                    check.name === checkName && check.output.title === checkTitle && check.output.title === checkSummary
+                );
+                return check.name === checkName
+                    && check.output.title === checkTitle
+                    && check.output.title === checkSummary;
+            }
         );
     }
 
