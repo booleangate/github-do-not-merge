@@ -5,9 +5,9 @@ on:
 jobs:
   dnm:
     runs-on: ubuntu-latest
-    name: DNM
+    name: Do Not Merge check
     steps:
-      - name: Checking for DNM flags
+      - name: Checking for DNM markers
         id: dnm
         uses: booleangate/github-do-not-merge@test
         with:
