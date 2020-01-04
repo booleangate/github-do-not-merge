@@ -1,7 +1,9 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-const checkName = 'DO-NOT-MERGE';
+const checkName = 'DO NOT MERGE';
+const checkTitle = 'Merge Blocked';
+const checkSummary = 'This PR is marked as *Do Not Merge*.';
 
 class PrClient {
     constructor(pr) {
@@ -36,7 +38,11 @@ class PrClient {
 
         console.log(res.data.check_runs);
 
-        return res.data.check_runs.find((check) => check.name = checkName);
+        return res.data.check_runs.find(
+            (check) => check.name = checkName
+                && check.output.title === checkTitle
+                && check.output.title === checkSummary
+        );
     }
 
     async setLock(lock, previousLock) {
@@ -47,8 +53,8 @@ class PrClient {
             completed_at: new Date().toISOString(),
             conclusion: 'failure',
             output: {
-                title: 'Merge Blocked',
-                summary: 'This PR is marked as *Do Not Merge*.',
+                title: checkTitle,
+                summary: checkSummary,
             },
             // https://github.community/t5/GitHub-API-Development-and/Random-401-errors-after-using-freshly-generated-installation/m-p/22905/highlight/true#M1596
             request: {
@@ -62,15 +68,15 @@ class PrClient {
         if (lock) {
             res = await this._gh.checks.create(this._context(check));
         } else {
-            check.check_run_id = previousLock.check_run_id;
+            check.check_run_id = previousLock.id;
             check.conclusion = 'success'
             check.completed_at = new Date().toISOString()
+            check.Name = 'can merge'
             check.output.title = 'Merge Unblocked'
             check.output.summary = '*Do Not Merge* markers removed.';
 
             res = await this._gh.checks.update(this._context(check));
         }
-
 
         return res && (res.status / 100) >>> 0 === 2;
     }
