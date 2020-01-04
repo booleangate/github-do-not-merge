@@ -10439,7 +10439,7 @@ const github = __webpack_require__(469);
 
 class PrClient {
     constructor(pr) {
-        this._pr.number = pr;
+        this._pr = pr;
         this._gh = new github.GitHub(core.getInput('repo-token'));
     }
 
