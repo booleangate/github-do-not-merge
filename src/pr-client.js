@@ -30,7 +30,6 @@ class PrClient {
     }
 
     async lock() {
-        console.log("this._pr.head.sha", this._pr.head.sha)
         const check = {
             name: "DO-NOT-MERGE",
             // head_branch: '', // workaround for https://github.com/octokit/rest.js/issues/874
@@ -56,7 +55,7 @@ class PrClient {
         //     check.output.summary = 'No *Do Not Merge* markers found.';
         // }
 
-        const res = await client.checks.create(this._context(check));
+        const res = await this._gh.checks.create(this._context(check));
 
         return res && (res.status / 100) >>> 0 === 2;
     }
