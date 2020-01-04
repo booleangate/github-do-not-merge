@@ -546,7 +546,7 @@ class Client {
         return this._gh.pulls.listLabelsOnIssue({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            issue_number: prNumber
+            issue_number: this._prn
         });
     }
 
