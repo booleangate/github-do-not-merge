@@ -543,7 +543,7 @@ class Client {
     }
 
     getLabels() {
-        return client.pulls.listLabelsOnIssue({
+        return this._gh.pulls.listLabelsOnIssue({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             issue_number: prNumber
@@ -560,7 +560,6 @@ class Client {
         await main();
     } catch(e) {
         core.error(e);
-        core.setFailed(`Failure: {e.message}`);
     }
 })();
 
