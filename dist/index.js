@@ -10431,6 +10431,7 @@ module.exports = set;
 /***/ 897:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
+const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
 class PrClient {
