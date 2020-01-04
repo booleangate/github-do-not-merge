@@ -1,6 +1,8 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
+const checkName = 'DO-NOT-MERGE';
+
 class PrClient {
     constructor(pr) {
         this._pr = pr;
@@ -24,14 +26,22 @@ class PrClient {
     }
 
     async getLock() {
-        const res = await this._gh.checks.listForRef({
+        const res = await this._gh.checks.listForRef(this._context({
+            ref: this._pr.head.ref
+        }));
 
-        })
+        if (!res || !res.data) {
+            return void 0;
+        }
+
+        console.log(res.data);
+
+        return res.data.find((check) => check.name = checkName);
     }
 
-    async lock() {
+    async setLock(lock, previousLock) {
         const check = {
-            name: "DO-NOT-MERGE",
+            name: checkName,
             // head_branch: '', // workaround for https://github.com/octokit/rest.js/issues/874
             head_sha: this._pr.head.sha,
             completed_at: new Date().toISOString(),
@@ -47,15 +57,20 @@ class PrClient {
             }
         };
 
-        // if (!shouldLock) {
-        //     check.check_run_id = previousLock.check_run_id;
-        //     check.conclusion = 'success'
-        //     check.completed_at = new Date().toISOString()
-        //     check.output.title = 'Merge Unblocked'
-        //     check.output.summary = 'No *Do Not Merge* markers found.';
-        // }
+        let res;
 
-        const res = await this._gh.checks.create(this._context(check));
+        if (lock) {
+            res = await this._gh.checks.create(this._context(check));
+        } else {
+            check.check_run_id = previousLock.check_run_id;
+            check.conclusion = 'success'
+            check.completed_at = new Date().toISOString()
+            check.output.title = 'Merge Unblocked'
+            check.output.summary = '*Do Not Merge* markers removed.';
+
+            res = await this._gh.checks.update(this._context(check));
+        }
+
 
         return res && (res.status / 100) >>> 0 === 2;
     }

@@ -27,22 +27,29 @@ async function main() {
     core.info(`Looking for label(s) "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
 
     const prLabels = await pr.getLabels();
+    let lock = false;
+
     if (!prLabels) {
-        core.setFailed('Could not get PR labels, doing nothing.');
-        return
+        core.error('Could not get PR labels.  Will attempt to unlock.');
+    } else {
+        lock = shouldLock(config, prLabels);
     }
 
-    if (!shouldLock(config, prLabels)) {
-        core.info("No DNM markers found. Nothing to do.");
+    const previousLock = await pr.getLock();
+    const isLocked = !!previousLock;
+
+    if (isLocked === lock) {
+        core.info(`Markers haven't changed. Nothing to do.`);
         return;
     }
 
-    core.info('DNM marker(s) found. Locking PR.');
+    const verb = lock ? 'lock' : 'unlock';
+    core.info(`Will ${verb} PR.`);
 
-    if (await pr.lock()) {
-        core.info('PR locked.');
+    if (await pr.setLock(lock, previousLock)) {
+        core.info(`Successfully ${verb} PR.`);
     } else {
-        core.setFailed('Failed to lock PR.');
+        core.setFailed(`Failed to ${verb} PR.`);
     }
 }
 

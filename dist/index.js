@@ -523,22 +523,29 @@ async function main() {
     core.info(`Looking for label(s) "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
 
     const prLabels = await pr.getLabels();
+    let lock = false;
+
     if (!prLabels) {
-        core.setFailed('Could not get PR labels, doing nothing.');
-        return
+        core.error('Could not get PR labels.  Will attempt to unlock.');
+    } else {
+        lock = shouldLock(config, prLabels);
     }
 
-    if (!shouldLock(config, prLabels)) {
-        core.info("No DNM markers found. Nothing to do.");
+    const previousLock = await pr.getLock();
+    const isLocked = !!previousLock;
+
+    if (isLocked === lock) {
+        core.info(`Markers haven't changed. Nothing to do.`);
         return;
     }
 
-    core.info('DNM marker(s) found. Locking PR.');
+    const verb = lock ? 'lock' : 'unlock';
+    core.info(`Will ${verb} PR.`);
 
-    if (await pr.lock()) {
-        core.info('PR locked.');
+    if (await pr.setLock(lock, previousLock)) {
+        core.info(`Successfully ${verb} PR.`);
     } else {
-        core.setFailed('Failed to lock PR.');
+        core.setFailed(`Failed to ${verb} PR.`);
     }
 }
 
@@ -10440,6 +10447,8 @@ module.exports = set;
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
+const checkName = 'DO-NOT-MERGE';
+
 class PrClient {
     constructor(pr) {
         this._pr = pr;
@@ -10463,14 +10472,22 @@ class PrClient {
     }
 
     async getLock() {
-        const res = await this._gh.checks.listForRef({
+        const res = await this._gh.checks.listForRef(this._context({
+            ref: this._pr.head.ref
+        }));
 
-        })
+        if (!res || !res.data) {
+            return void 0;
+        }
+
+        console.log(res.data);
+
+        return res.data.find((check) => check.name = checkName);
     }
 
-    async lock() {
+    async setLock(lock, previousLock) {
         const check = {
-            name: "DO-NOT-MERGE",
+            name: checkName,
             // head_branch: '', // workaround for https://github.com/octokit/rest.js/issues/874
             head_sha: this._pr.head.sha,
             completed_at: new Date().toISOString(),
@@ -10486,15 +10503,20 @@ class PrClient {
             }
         };
 
-        // if (!shouldLock) {
-        //     check.check_run_id = previousLock.check_run_id;
-        //     check.conclusion = 'success'
-        //     check.completed_at = new Date().toISOString()
-        //     check.output.title = 'Merge Unblocked'
-        //     check.output.summary = 'No *Do Not Merge* markers found.';
-        // }
+        let res;
 
-        const res = await this._gh.checks.create(this._context(check));
+        if (lock) {
+            res = await this._gh.checks.create(this._context(check));
+        } else {
+            check.check_run_id = previousLock.check_run_id;
+            check.conclusion = 'success'
+            check.completed_at = new Date().toISOString()
+            check.output.title = 'Merge Unblocked'
+            check.output.summary = '*Do Not Merge* markers removed.';
+
+            res = await this._gh.checks.update(this._context(check));
+        }
+
 
         return res && (res.status / 100) >>> 0 === 2;
     }
