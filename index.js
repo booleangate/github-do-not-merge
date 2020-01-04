@@ -5,28 +5,46 @@
 // - https://github.com/wip/app/
 // - https://github.com/actions/labeler/blob/master/src/main.ts
 
+// TODO: support multiple labels and tag in PR title.
+//  - Will need to use separate config file (similar to labeler) to achieve the desired config structure.
+
 const core = require('@actions/core');
 const github = require('@actions/github');
+const PrClient = require('./src/pr-client');
 
 async function main() {
-    const {config, client} = init()
+    const {config, pr: pr} = init()
 
     if (!config.labels.length) {
         core.info('No label configured. Nothing to do.');
         return
     }
-    if (!client) {
+    if (!pr) {
         core.setFailed('Could not get PR info.');
         return;
     }
 
-    core.info(`Looking for label "${config.labels.join('", and "')}" on PR #${client.getPrNumber()}`);
+    core.info(`Looking for label "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
 
-    const labels = await client.getLabels();
+    const prLabels = await pr.getLabels();
+    const isLocked = await pr.isLocked();
+    let willLock = false;
+
+    if (!prLabels) {
+        core.setFailed('Could not get labels, removing lock.');
+    } else {
+        willLock = shouldLock(config, prLabels);
+    }
+
     console.log("labels!");
-    console.info(labels);
+    console.info(prLabels);
 
-    // client.checks.create()
+    if (isLocked === willLock) {
+        core.info(`PR is already ${isLocked ? "locked" : "unlocked"}, doing nothing.`);
+    } else {
+        core.info(`${willLock ? "Locking" : "Unlocking"} PR.`);
+        await pr.setLock(willLock)
+    }
 }
 
 function init() {
@@ -34,36 +52,21 @@ function init() {
         config: {
             labels: core.getInput('label') ? [core.getInput('label')] : [],
         },
-        client: void 0
+        pr: void 0
     }
 
     if (github.context.payload.pull_request && github.context.payload.pull_request.number) {
-        values.client = new Client(github.context.payload.pull_request && github.context.payload.pull_request.number);
+        values.pr = new PrClient(github.context.payload.pull_request && github.context.payload.pull_request.number);
     } else {
         core.error("Pull request not found in `github.context.payload`")
         console.error(github.context.payload);
     }
 
-    return values
+    return values;
 }
 
-class Client {
-    constructor(prNumber) {
-        this._prn = prNumber
-        this._gh = new github.GitHub(core.getInput('repo-token'));
-    }
-
-    getLabels() {
-        return this._gh.issues.listLabelsOnIssue({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            issue_number: this._prn
-        });
-    }
-
-    getPrNumber() {
-        return this._prn;
-    }
+function shouldLock(config, prLabels) {
+    return config.labels.some((l) => prLabels.includes(l));
 }
 
 (async () => {
