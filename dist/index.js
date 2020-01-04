@@ -494,6 +494,12 @@ module.exports = require("os");
 /***/ 104:
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
+// Useful docs
+// - https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-a-javascript-action
+// - https://github.com/actions/toolkit/tree/master/packages/core
+// - https://github.com/actions/toolkit/tree/master/packages/github
+// - https://github.com/wip/app/
+
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
@@ -543,7 +549,7 @@ class Client {
     }
 
     getLabels() {
-        return this._gh.pulls.listLabelsOnIssue({
+        return this._gh.issues.listLabelsOnIssue({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             issue_number: this._prn
