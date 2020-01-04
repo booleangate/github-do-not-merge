@@ -9,4 +9,5 @@ jobs:
         id: dnm
         uses: booleangate/github-do-not-merge@test
         with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
           label: 'DO NOT MERGE'

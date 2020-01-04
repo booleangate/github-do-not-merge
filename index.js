@@ -1,12 +1,35 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-try {
-    const label = core.getInput('label')
+function main() {
+    const [label, prn] = init()
 
-    console.log(label);
-    core.info(label);
+    if (!label) {
+        core.info('No label configured. Nothing to do.');
+        return
+    }
+    if (!prn) {
+        core.setFailed('Could not get PR number.');
+        return;
+    }
+
+    core.info(`Looking for label "${label}" on PR #${prn}`);
+}
+
+function init() {
+    const label = core.getInput('label');
+    const pullRequest = github.context.payload.pull_request;
+
+    if (!pullRequest) {
+        return [label, void 0];
+    }
+
+    return [label, pullRequest.number];
+}
+
+try {
+    main();
 } catch(e) {
-    console.error(e);
     core.error(e);
+    core.setFailed(`Failure: {e.message}`);
 }
