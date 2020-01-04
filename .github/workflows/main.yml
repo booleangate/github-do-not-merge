@@ -1,0 +1,12 @@
+on: [push]
+
+jobs:
+  dnm:
+    runs-on: ubuntu-latest
+    name: DNM
+    steps:
+      - name: Checking for DNM flags
+        id: dnm
+        uses: booleangate/github-do-not-merge@v1
+        with:
+          labels: ['DO NOT MERGE']

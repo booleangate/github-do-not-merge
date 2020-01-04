@@ -1,0 +1,26 @@
+{
+  "name": "github-do-not-merge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx ncc build index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/booleangate/github-do-not-merge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/booleangate/github-do-not-merge/issues"
+  },
+  "homepage": "https://github.com/booleangate/github-do-not-merge#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@actions/github": "^2.0.0",
+    "@zeit/ncc": "^0.20.5"
+  }
+}
