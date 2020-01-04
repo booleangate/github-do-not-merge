@@ -10444,6 +10444,10 @@ class PrClient {
         return this._num;
     }
 
+    async isLocked() {
+        return false;
+    }
+
     async getLabels() {
         const res = await this._gh.issues.listLabelsOnIssue({
             owner: github.context.repo.owner,
