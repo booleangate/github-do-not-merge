@@ -497,43 +497,72 @@ module.exports = require("os");
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 
-function main() {
-    const [label, prn] = init()
+async function main() {
+    const {config, client} = init()
 
-    if (!label) {
+    if (!config.labels.length) {
         core.info('No label configured. Nothing to do.');
         return
     }
-    if (!prn) {
-        core.setFailed('Could not get PR number.');
+    if (!client) {
+        core.setFailed('Could not get PR info.');
         return;
     }
 
-    core.info(`Looking for label "${label}" on PR #${prn}`);
+    core.info(`Looking for label "${config.labels.join('", and "')}" on PR #${client.getPrNumber()}`);
+
+    const labels = await client.getLabels();
+    console.log("labels!");
+    console.info(labels);
+
+    // client.checks.create()
 }
 
 function init() {
-    const label = core.getInput('label');
-    const pullRequest = github.context.payload.pull_request;
-
-    if (!pullRequest) {
-        core.info(github.context.payload);
-        return [label, void 0];
+    const values = {
+        config: {
+            labels: core.getInput('label') ? [core.getInput('label')] : [],
+        },
+        client: void 0
     }
 
-    core.info(github.context.payload);
-    core.info('----------------');
-    console.log(github.context.payload.pull_request);
+    if (github.context.payload.pull_request && github.context.payload.pull_request.number) {
+        values.client = new Client(github.context.payload.pull_request && github.context.payload.pull_request.number);
+    } else {
+        core.error("Pull request not found in `github.context.payload`")
+        console.error(github.context.payload);
+    }
 
-    return [label, pullRequest.number];
+    return values
 }
 
-try {
-    main();
-} catch(e) {
-    core.error(e);
-    core.setFailed(`Failure: {e.message}`);
+class Client {
+    constructor(prNumber) {
+        this._prn = prNumber
+        this._gh = new github.GitHub(core.getInput('repo-token'));
+    }
+
+    getLabels() {
+        return client.pulls.listLabelsOnIssue({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            issue_number: prNumber
+        });
+    }
+
+    getPrNumber() {
+        return this._prn;
+    }
 }
+
+(async () => {
+    try {
+        await main();
+    } catch(e) {
+        core.error(e);
+        core.setFailed(`Failure: {e.message}`);
+    }
+})();
 
 
 /***/ }),
