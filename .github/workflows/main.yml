@@ -1,6 +1,8 @@
 on:
   pull_request:
-    types: [opened, edited, labeled, unlabeled, synchronize]
+    types: [edited, labeled, unlabeled]
+    # include 'synchronize' for running on push.  Full list available here
+    # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#pull-request-event-pull_request
 
 jobs:
   dnm:
