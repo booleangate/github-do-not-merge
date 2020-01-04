@@ -21,6 +21,10 @@ function init() {
     const pullRequest = github.context.payload.pull_request;
 
     if (!pullRequest) {
+        core.info(github.context)
+        core.info('----------')
+        console.log(github.context.payload.pull_request)
+        console.log(github.context.payload)
         return [label, void 0];
     }
 
