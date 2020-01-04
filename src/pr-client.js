@@ -12,13 +12,9 @@ class PrClient {
     }
 
     async getLabels() {
-        core.info("core: start")
-        console.log("console: start")
         const res = await this._gh.issues.listLabelsOnIssue(this._context({
             issue_number: this._pr.number
         }));
-        core.info("core: done")
-        console.log("console: done")
 
         if (!res || !res.data) {
             return void 0;

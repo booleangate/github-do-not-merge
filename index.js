@@ -32,14 +32,17 @@ async function main() {
         return
     }
 
-    if (shouldLock(config, prLabels)) {
-        core.info('Locking PR.');
+    if (!shouldLock(config, prLabels)) {
+        core.info("No DNM markers found. Nothing to do.");
+        return;
+    }
 
-        if (await pr.lock()) {
-            core.info('PR locked.');
-        } else {
-            core.setFailed('Failed to lock PR.');
-        }
+    core.info('DNM marker(s) found. Locking PR.');
+
+    if (await pr.lock()) {
+        core.info('PR locked.');
+    } else {
+        core.setFailed('Failed to lock PR.');
     }
 }
 

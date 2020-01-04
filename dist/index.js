@@ -528,14 +528,17 @@ async function main() {
         return
     }
 
-    if (shouldLock(config, prLabels)) {
-        core.info('Locking PR.');
+    if (!shouldLock(config, prLabels)) {
+        core.info("No DNM markers found. Nothing to do.");
+        return;
+    }
 
-        if (await pr.lock()) {
-            core.info('PR locked.');
-        } else {
-            core.setFailed('Failed to lock PR.');
-        }
+    core.info('DNM marker(s) found. Locking PR.');
+
+    if (await pr.lock()) {
+        core.info('PR locked.');
+    } else {
+        core.setFailed('Failed to lock PR.');
     }
 }
 
@@ -10450,13 +10453,9 @@ class PrClient {
     }
 
     async getLabels() {
-        core.info("core: start")
-        console.log("console: start")
         const res = await this._gh.issues.listLabelsOnIssue(this._context({
             issue_number: this._pr.number
         }));
-        core.info("core: done")
-        console.log("console: done")
 
         if (!res || !res.data) {
             return void 0;
