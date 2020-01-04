@@ -10482,7 +10482,7 @@ class PrClient {
 
         console.log(res.data);
 
-        return res.data.find((check) => check.name = checkName);
+        return res.data.check_runs.find((check) => check.name = checkName);
     }
 
     async setLock(lock, previousLock) {
