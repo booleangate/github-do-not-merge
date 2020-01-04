@@ -34,7 +34,7 @@ class PrClient {
             return void 0;
         }
 
-        console.log(res.data);
+        console.log(res.data.check_runs);
 
         return res.data.check_runs.find((check) => check.name = checkName);
     }

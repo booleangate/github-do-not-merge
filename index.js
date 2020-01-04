@@ -38,10 +38,10 @@ async function main() {
     const previousLock = await pr.getLock();
     const isLocked = !!previousLock;
 
-    if (isLocked === lock) {
-        core.info(`Markers haven't changed. Nothing to do.`);
-        return;
-    }
+    // if (isLocked === lock) {
+    //     core.info(`Markers haven't changed. Nothing to do.`);
+    //     return;
+    // }
 
     const verb = lock ? 'lock' : 'unlock';
     core.info(`Will ${verb} PR.`);

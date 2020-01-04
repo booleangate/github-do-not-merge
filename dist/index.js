@@ -534,10 +534,10 @@ async function main() {
     const previousLock = await pr.getLock();
     const isLocked = !!previousLock;
 
-    if (isLocked === lock) {
-        core.info(`Markers haven't changed. Nothing to do.`);
-        return;
-    }
+    // if (isLocked === lock) {
+    //     core.info(`Markers haven't changed. Nothing to do.`);
+    //     return;
+    // }
 
     const verb = lock ? 'lock' : 'unlock';
     core.info(`Will ${verb} PR.`);
@@ -10480,7 +10480,7 @@ class PrClient {
             return void 0;
         }
 
-        console.log(res.data);
+        console.log(res.data.check_runs);
 
         return res.data.check_runs.find((check) => check.name = checkName);
     }
