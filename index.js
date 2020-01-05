@@ -27,28 +27,30 @@ async function main() {
     core.info(`Looking for label(s) "${config.labels.join('", and "')}" on PR #${pr.getNumber()}`);
 
     const prLabels = await pr.getLabels();
-    let lock = false;
+    let willLock = false;
 
     if (!prLabels) {
         core.error('Could not get PR labels.  Will attempt to unlock.');
     } else {
-        lock = shouldLock(config, prLabels);
+        willLock = shouldLock(config, prLabels);
     }
 
-    const previousLock = await pr.getLock();
-    const isLocked = !!previousLock;
+    const existingLock = await pr.getLock();
+    const isLocked = !!existingLock;
 
-    core.info('previous lock', previousLock)
+    core.info('previous lock', existingLock)
+    core.info('isLocked', isLocked)
+    core.info('willLock', willLock)
 
-    // if (isLocked === lock) {
-    //     core.info(`Markers haven't changed. Nothing to do.`);
-    //     return;
-    // }
+    if (isLocked === willLock) {
+        core.info(`Markers haven't changed. Nothing to do.`);
+        return;
+    }
 
-    const verb = lock ? 'lock' : 'unlock';
+    const verb = willLock ? 'lock' : 'unlock';
     core.info(`Will ${verb} PR.`);
 
-    if (await pr.setLock(lock, previousLock)) {
+    if (await pr.setLock(willLock, existingLock)) {
         core.info(`Successfully ${verb} PR.`);
     } else {
         core.setFailed(`Failed to ${verb} PR.`);
