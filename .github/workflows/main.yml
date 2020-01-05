@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checking for DNM markers
         id: dnm
-        uses: booleangate/github-do-not-merge@test
+        uses: booleangate/github-do-not-merge@noop
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           label: 'DO NOT MERGE'
