@@ -72,9 +72,23 @@ function init() {
 }
 
 function shouldLock(config, prLabels) {
-    return config.labels.some((l) => {
-        if (prLabels.includes(l)) {
-            core.info(`Found marker label "${l}"`);
+    const markerRE = /^\/(.*)(?:\/([gimsuy]*)$)/i;
+
+    return config.labels.some((marker) => {
+        const hasMatch = prLabels.some((label) => {
+            const match = markerRE.exec(marker);
+
+            if (match) {
+                const re = new RegExp(match[1], match[2]);
+
+                return re.test(label);
+            }
+
+            return marker === label;
+        })
+
+        if (hasMatch) {
+            core.info(`Found marker label "${marker}"`);
             return true;
         }
 
