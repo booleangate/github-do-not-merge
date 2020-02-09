@@ -35,21 +35,8 @@ async function main() {
         willLock = shouldLock(config, prLabels);
     }
 
-    const existingLock = await pr.getLock();
-    const isLocked = !!existingLock;
-
-    if (isLocked === willLock) {
-        core.info(`Markers haven't changed. Nothing to do.`);
-        return;
-    }
-
-    const verb = willLock ? 'lock' : 'unlock';
-    core.info(`Will ${verb} PR.`);
-
-    if (await pr.setLock(willLock, existingLock)) {
-        core.info(`Successfully ${verb} PR.`);
-    } else {
-        core.setFailed(`Failed to ${verb} PR.`);
+    if (willLock) {
+        core.setFailed('Merge Blocked by label');
     }
 }
 
