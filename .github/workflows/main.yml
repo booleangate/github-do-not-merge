@@ -14,4 +14,4 @@ jobs:
         uses: booleangate/github-do-not-merge@support-regex
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          label: 'DO NOT MERGE'
+          label: '/^i:.*/'
