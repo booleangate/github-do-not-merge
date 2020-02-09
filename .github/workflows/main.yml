@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checking for DNM markers
         id: dnm
-        uses: booleangate/github-do-not-merge@support-regex
+        uses: booleangate/github-do-not-merge@improve-blocking
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           label: '/^i:.*/'
